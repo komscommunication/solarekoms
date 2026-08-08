@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet } from "react-router-dom";
 const navItems = [
   { to: "/", label: "Accueil" },
   { to: "/simulateur", label: "Simulateur" },
+  { to: "/catalogue", label: "Catalogue" },
   { to: "/devis", label: "Devis" }
 ];
 
@@ -15,7 +16,7 @@ export function MainLayout() {
             SolarCops
           </Link>
 
-          <nav className="flex items-center gap-6">
+          <nav className="flex flex-wrap items-center gap-6">
             {navItems.map((item) => (
               <NavLink
                 key={item.to}

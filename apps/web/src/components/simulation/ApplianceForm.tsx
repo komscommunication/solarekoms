@@ -5,6 +5,8 @@ type FormValues = {
   region: string;
   autonomyDays: number;
   systemVoltage: string;
+  roofType: string;
+  installationType: string;
 };
 
 export function ApplianceForm() {
@@ -13,7 +15,9 @@ export function ApplianceForm() {
       projectName: "Maison principale",
       region: "France",
       autonomyDays: 2,
-      systemVoltage: "48"
+      systemVoltage: "48",
+      roofType: "toiture",
+      installationType: "site-isole"
     }
   });
 
@@ -35,12 +39,41 @@ export function ApplianceForm() {
 
       <div>
         <label className="mb-1 block text-sm font-medium text-slate-700">
-          Region
+          Region / pays
         </label>
         <input
           {...register("region")}
           className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-brand-500"
         />
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-medium text-slate-700">
+          Type d'installation
+        </label>
+        <select
+          {...register("installationType")}
+          className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-brand-500"
+        >
+          <option value="site-isole">Site isole</option>
+          <option value="maison">Maison</option>
+          <option value="commerce">Commerce</option>
+          <option value="bureau">Bureau</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-medium text-slate-700">
+          Type de pose
+        </label>
+        <select
+          {...register("roofType")}
+          className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-brand-500"
+        >
+          <option value="toiture">Toiture</option>
+          <option value="sol">Au sol</option>
+          <option value="mixte">Mixte</option>
+        </select>
       </div>
 
       <div>
@@ -70,9 +103,9 @@ export function ApplianceForm() {
 
       <button
         type="submit"
-        className="rounded-xl bg-brand-600 px-5 py-3 font-medium text-white hover:bg-brand-700"
+        className="w-full rounded-xl bg-brand-600 px-5 py-3 font-medium text-white hover:bg-brand-700"
       >
-        Calculer
+        Calculer le besoin solaire
       </button>
     </form>
   );
