@@ -1,38 +1,49 @@
-import { Link } from "react-router-dom";
-import { mockSimulation } from "../../data/mockSimulation";
+﻿import type { SimulationResult } from "../../types/simulation";
 
-const items = [
-  {
-    label: "Consommation journaliere",
-    value: `${mockSimulation.dailyConsumptionWh} Wh`
-  },
-  {
-    label: "Consommation journaliere",
-    value: `${mockSimulation.dailyConsumptionKwh} kWh`
-  },
-  {
-    label: "Puissance simultanee",
-    value: `${mockSimulation.peakPowerW} W`
-  },
-  {
-    label: "Batterie recommandee",
-    value: `${mockSimulation.batteryCapacityAh} Ah`
-  },
-  {
-    label: "Puissance solaire recommandee",
-    value: `${mockSimulation.recommendedSolarWatts} Wc`
-  },
-  {
-    label: "Onduleur recommande",
-    value: `${mockSimulation.inverterWatts} W`
-  },
-  {
-    label: "Regulateur recommande",
-    value: `${mockSimulation.controllerAmps} A`
+type SimulationSummaryProps = {
+  result: SimulationResult | null
+}
+
+export function SimulationSummary({ result }: SimulationSummaryProps) {
+  if (!result) {
+    return (
+      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 text-slate-600">
+        Lance un calcul pour afficher les resultats reels provenant de l API.
+      </div>
+    )
   }
-];
 
-export function SimulationSummary() {
+  const items = [
+    {
+      label: "Consommation journaliere",
+      value: `${result.dailyConsumptionWh} Wh`
+    },
+    {
+      label: "Consommation journaliere",
+      value: `${result.dailyConsumptionKwh} kWh`
+    },
+    {
+      label: "Puissance simultanee",
+      value: `${result.peakPowerW} W`
+    },
+    {
+      label: "Batterie recommandee",
+      value: `${result.batteryCapacityAh} Ah`
+    },
+    {
+      label: "Puissance solaire recommandee",
+      value: `${result.recommendedSolarWatts} Wc`
+    },
+    {
+      label: "Onduleur recommande",
+      value: `${result.inverterWatts} W`
+    },
+    {
+      label: "Regulateur recommande",
+      value: `${result.controllerAmps} A`
+    }
+  ]
+
   return (
     <div className="space-y-6">
       <div className="rounded-2xl border border-brand-200 bg-brand-50 p-4">
@@ -40,7 +51,7 @@ export function SimulationSummary() {
           Recommandation automatique
         </h3>
         <p className="mt-2 text-sm text-brand-700">
-          Cette estimation fournit un premier dimensionnement pour une installation solaire autonome basee sur vos besoins declares.
+          Ces valeurs proviennent maintenant directement de l API de calcul.
         </p>
       </div>
 
@@ -58,21 +69,31 @@ export function SimulationSummary() {
 
       <div className="rounded-2xl border border-slate-200 bg-white p-5">
         <h3 className="text-lg font-semibold text-slate-900">
-          Interpretation du resultat
+          Protections recommandees
         </h3>
-        <ul className="mt-3 space-y-2 text-sm text-slate-600">
-          <li>- Le besoin journalier estime sert de base au calcul des batteries et panneaux.</li>
-          <li>- La puissance simultanee aide a choisir l'onduleur adapte.</li>
-          <li>- Le devis recommande peut ensuite etre ajuste selon le budget et la disponibilite des produits.</li>
-        </ul>
-
-        <Link
-          to="/devis"
-          className="mt-4 inline-flex rounded-xl bg-brand-600 px-4 py-3 text-sm font-medium text-white hover:bg-brand-700"
-        >
-          Voir le devis recommande
-        </Link>
+        <div className="mt-4 space-y-3 text-sm text-slate-700">
+          <div className="flex items-center justify-between">
+            <span>Protection eclairage</span>
+            <span>{result.lightingBreaker}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span>Protection prises</span>
+            <span>{result.socketBreaker}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span>Protection AC</span>
+            <span>{result.acProtection}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span>Protection DC</span>
+            <span>{result.dcProtection}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span>Protection onduleur</span>
+            <span>{result.inverterProtection}</span>
+          </div>
+        </div>
       </div>
     </div>
-  );
+  )
 }

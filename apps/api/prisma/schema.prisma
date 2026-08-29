@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Simulation {
+  id                      String   @id @default(cuid())
+  projectName             String
+  region                  String
+  installationType        String
+  roofType                String
+  autonomyDays            Int
+  systemVoltage           Int
+
+  lightPoints             Int
+  wattsPerLightPoint      Float
+  socketPoints            Int
+  socketCircuitType       String
+  averageSocketWatts      Float
+
+  dedicatedLoadLabel      String?
+  dedicatedLoadWatts      Float?
+  dedicatedLoadHours      Float?
+
+  dailyConsumptionWh      Float
+  dailyConsumptionKwh     Float
+  peakPowerW              Float
+  batteryCapacityAh       Float
+  recommendedSolarWatts   Float
+  inverterWatts           Float
+  controllerAmps          Float
+
+  acProtection            String
+  dcProtection            String
+  inverterProtection      String
+  lightingBreaker         String
+  socketBreaker           String
+
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+}

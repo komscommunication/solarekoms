@@ -1,29 +1,68 @@
+﻿import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { calculateSimulation } from "../../lib/api";
+import type { SimulationResult } from "../../types/simulation";
 
 type FormValues = {
-  projectName: string;
-  region: string;
-  autonomyDays: number;
-  systemVoltage: string;
-  roofType: string;
-  installationType: string;
-};
+  projectName: string
+  region: string
+  installationType: string
+  roofType: string
+  autonomyDays: number
+  systemVoltage: number
 
-export function ApplianceForm() {
+  lightPoints: number
+  wattsPerLightPoint: number
+  socketPoints: number
+  socketCircuitType: string
+  averageSocketWatts: number
+
+  dedicatedLoadLabel: string
+  dedicatedLoadWatts: number
+  dedicatedLoadHours: number
+}
+
+type ApplianceFormProps = {
+  onResult: (result: SimulationResult) => void
+}
+
+export function ApplianceForm({ onResult }: ApplianceFormProps) {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
+
   const { register, handleSubmit } = useForm<FormValues>({
     defaultValues: {
       projectName: "Maison principale",
       region: "France",
-      autonomyDays: 2,
-      systemVoltage: "48",
+      installationType: "site-isole",
       roofType: "toiture",
-      installationType: "site-isole"
-    }
-  });
+      autonomyDays: 2,
+      systemVoltage: 48,
 
-  const onSubmit = (values: FormValues) => {
-    console.log("Simulation values", values);
-  };
+      lightPoints: 12,
+      wattsPerLightPoint: 12,
+      socketPoints: 8,
+      socketCircuitType: "AC",
+      averageSocketWatts: 150,
+
+      dedicatedLoadLabel: "Refrigerateur",
+      dedicatedLoadWatts: 180,
+      dedicatedLoadHours: 10
+    }
+  })
+
+  const onSubmit = async (values: FormValues) => {
+    try {
+      setLoading(true)
+      setError("")
+      const result = await calculateSimulation(values)
+      onResult(result)
+    } catch (e) {
+      setError("Impossible de contacter l API de calcul")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -39,7 +78,7 @@ export function ApplianceForm() {
 
       <div>
         <label className="mb-1 block text-sm font-medium text-slate-700">
-          Region / pays
+          Region
         </label>
         <input
           {...register("region")}
@@ -49,16 +88,16 @@ export function ApplianceForm() {
 
       <div>
         <label className="mb-1 block text-sm font-medium text-slate-700">
-          Type d'installation
+          Type installation
         </label>
         <select
           {...register("installationType")}
           className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-brand-500"
         >
-          <option value="site-isole">Site isole</option>
-          <option value="maison">Maison</option>
-          <option value="commerce">Commerce</option>
-          <option value="bureau">Bureau</option>
+          <option value="site-isole">site-isole</option>
+          <option value="maison">maison</option>
+          <option value="commerce">commerce</option>
+          <option value="bureau">bureau</option>
         </select>
       </div>
 
@@ -70,15 +109,15 @@ export function ApplianceForm() {
           {...register("roofType")}
           className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-brand-500"
         >
-          <option value="toiture">Toiture</option>
-          <option value="sol">Au sol</option>
-          <option value="mixte">Mixte</option>
+          <option value="toiture">toiture</option>
+          <option value="sol">sol</option>
+          <option value="mixte">mixte</option>
         </select>
       </div>
 
       <div>
         <label className="mb-1 block text-sm font-medium text-slate-700">
-          Jours d'autonomie
+          Jours d autonomie
         </label>
         <input
           type="number"
@@ -92,7 +131,7 @@ export function ApplianceForm() {
           Tension systeme
         </label>
         <select
-          {...register("systemVoltage")}
+          {...register("systemVoltage", { valueAsNumber: true })}
           className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-brand-500"
         >
           <option value="12">12V</option>
@@ -101,12 +140,112 @@ export function ApplianceForm() {
         </select>
       </div>
 
+      <hr className="border-slate-200" />
+
+      <div>
+        <label className="mb-1 block text-sm font-medium text-slate-700">
+          Nombre de points lumineux
+        </label>
+        <input
+          type="number"
+          {...register("lightPoints", { valueAsNumber: true })}
+          className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-brand-500"
+        />
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-medium text-slate-700">
+          Puissance par point lumineux en W
+        </label>
+        <input
+          type="number"
+          {...register("wattsPerLightPoint", { valueAsNumber: true })}
+          className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-brand-500"
+        />
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-medium text-slate-700">
+          Nombre de prises
+        </label>
+        <input
+          type="number"
+          {...register("socketPoints", { valueAsNumber: true })}
+          className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-brand-500"
+        />
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-medium text-slate-700">
+          Type de circuit prises
+        </label>
+        <select
+          {...register("socketCircuitType")}
+          className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-brand-500"
+        >
+          <option value="AC">AC</option>
+          <option value="C">C</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-medium text-slate-700">
+          Puissance moyenne estimee par prise en W
+        </label>
+        <input
+          type="number"
+          {...register("averageSocketWatts", { valueAsNumber: true })}
+          className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-brand-500"
+        />
+      </div>
+
+      <hr className="border-slate-200" />
+
+      <div>
+        <label className="mb-1 block text-sm font-medium text-slate-700">
+          Charge dediee
+        </label>
+        <input
+          {...register("dedicatedLoadLabel")}
+          className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-brand-500"
+        />
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-medium text-slate-700">
+          Puissance de la charge dediee en W
+        </label>
+        <input
+          type="number"
+          {...register("dedicatedLoadWatts", { valueAsNumber: true })}
+          className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-brand-500"
+        />
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-medium text-slate-700">
+          Heures de fonctionnement de la charge dediee
+        </label>
+        <input
+          type="number"
+          {...register("dedicatedLoadHours", { valueAsNumber: true })}
+          className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-brand-500"
+        />
+      </div>
+
+      {error ? (
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      ) : null}
+
       <button
         type="submit"
-        className="w-full rounded-xl bg-brand-600 px-5 py-3 font-medium text-white hover:bg-brand-700"
+        disabled={loading}
+        className="w-full rounded-xl bg-brand-600 px-5 py-3 font-medium text-white hover:bg-brand-700 disabled:opacity-60"
       >
-        Calculer le besoin solaire
+        {loading ? "Calcul en cours..." : "Calculer le besoin solaire"}
       </button>
     </form>
-  );
+  )
 }
