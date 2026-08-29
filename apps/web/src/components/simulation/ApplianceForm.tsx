@@ -9,17 +9,26 @@ type FormValues = {
   installationType: string
   roofType: string
   autonomyDays: number
+
   systemVoltage: number
+  outputVoltage: number
+  currency: string
 
   lightPoints: number
   wattsPerLightPoint: number
+
   socketPoints: number
   socketCircuitType: string
   averageSocketWatts: number
 
+  specializedSocketPoints: number
+  specializedSocketWatts: number
+
   dedicatedLoadLabel: string
   dedicatedLoadWatts: number
   dedicatedLoadHours: number
+
+  otherSpecificLoads: string
 }
 
 type ApplianceFormProps = {
@@ -37,17 +46,26 @@ export function ApplianceForm({ onResult }: ApplianceFormProps) {
       installationType: "site-isole",
       roofType: "toiture",
       autonomyDays: 2,
+
       systemVoltage: 48,
+      outputVoltage: 230,
+      currency: "EUR",
 
       lightPoints: 12,
       wattsPerLightPoint: 12,
+
       socketPoints: 8,
       socketCircuitType: "AC",
       averageSocketWatts: 150,
 
+      specializedSocketPoints: 2,
+      specializedSocketWatts: 2000,
+
       dedicatedLoadLabel: "Refrigerateur",
       dedicatedLoadWatts: 180,
-      dedicatedLoadHours: 10
+      dedicatedLoadHours: 10,
+
+      otherSpecificLoads: "Machine a laver, television, box internet"
     }
   })
 
@@ -126,9 +144,11 @@ export function ApplianceForm({ onResult }: ApplianceFormProps) {
         />
       </div>
 
+      <hr className="border-slate-200" />
+
       <div>
         <label className="mb-1 block text-sm font-medium text-slate-700">
-          Tension systeme
+          Tension systeme batterie
         </label>
         <select
           {...register("systemVoltage", { valueAsNumber: true })}
@@ -137,6 +157,31 @@ export function ApplianceForm({ onResult }: ApplianceFormProps) {
           <option value="12">12V</option>
           <option value="24">24V</option>
           <option value="48">48V</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-medium text-slate-700">
+          Tension de sortie utilisateur
+        </label>
+        <select
+          {...register("outputVoltage", { valueAsNumber: true })}
+          className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-brand-500"
+        >
+          <option value="230">230V</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-medium text-slate-700">
+          Devise du devis
+        </label>
+        <select
+          {...register("currency")}
+          className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-brand-500"
+        >
+          <option value="EUR">EUR</option>
+          <option value="USD">USD</option>
         </select>
       </div>
 
@@ -164,9 +209,11 @@ export function ApplianceForm({ onResult }: ApplianceFormProps) {
         />
       </div>
 
+      <hr className="border-slate-200" />
+
       <div>
         <label className="mb-1 block text-sm font-medium text-slate-700">
-          Nombre de prises
+          Nombre de prises standards
         </label>
         <input
           type="number"
@@ -177,7 +224,7 @@ export function ApplianceForm({ onResult }: ApplianceFormProps) {
 
       <div>
         <label className="mb-1 block text-sm font-medium text-slate-700">
-          Type de circuit prises
+          Type de circuit prises standards
         </label>
         <select
           {...register("socketCircuitType")}
@@ -190,7 +237,7 @@ export function ApplianceForm({ onResult }: ApplianceFormProps) {
 
       <div>
         <label className="mb-1 block text-sm font-medium text-slate-700">
-          Puissance moyenne estimee par prise en W
+          Puissance moyenne estimee par prise standard en W
         </label>
         <input
           type="number"
@@ -203,7 +250,31 @@ export function ApplianceForm({ onResult }: ApplianceFormProps) {
 
       <div>
         <label className="mb-1 block text-sm font-medium text-slate-700">
-          Charge dediee
+          Nombre de prises specialisees
+        </label>
+        <input
+          type="number"
+          {...register("specializedSocketPoints", { valueAsNumber: true })}
+          className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-brand-500"
+        />
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-medium text-slate-700">
+          Puissance estimee des prises specialisees en W
+        </label>
+        <input
+          type="number"
+          {...register("specializedSocketWatts", { valueAsNumber: true })}
+          className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-brand-500"
+        />
+      </div>
+
+      <hr className="border-slate-200" />
+
+      <div>
+        <label className="mb-1 block text-sm font-medium text-slate-700">
+          Element specifique principal
         </label>
         <input
           {...register("dedicatedLoadLabel")}
@@ -213,7 +284,7 @@ export function ApplianceForm({ onResult }: ApplianceFormProps) {
 
       <div>
         <label className="mb-1 block text-sm font-medium text-slate-700">
-          Puissance de la charge dediee en W
+          Puissance de cet element specifique en W
         </label>
         <input
           type="number"
@@ -224,11 +295,22 @@ export function ApplianceForm({ onResult }: ApplianceFormProps) {
 
       <div>
         <label className="mb-1 block text-sm font-medium text-slate-700">
-          Heures de fonctionnement de la charge dediee
+          Heures de fonctionnement de cet element specifique
         </label>
         <input
           type="number"
           {...register("dedicatedLoadHours", { valueAsNumber: true })}
+          className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-brand-500"
+        />
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-medium text-slate-700">
+          Autres elements specifiques a preciser
+        </label>
+        <textarea
+          {...register("otherSpecificLoads")}
+          rows={4}
           className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-brand-500"
         />
       </div>

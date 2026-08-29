@@ -15,6 +15,18 @@ export function SimulationSummary({ result }: SimulationSummaryProps) {
 
   const items = [
     {
+      label: "Tension batterie",
+      value: `${result.systemVoltage} V`
+    },
+    {
+      label: "Tension utilisateur",
+      value: `${result.outputVoltage} V`
+    },
+    {
+      label: "Devise du devis",
+      value: result.currency
+    },
+    {
       label: "Consommation journaliere",
       value: `${result.dailyConsumptionWh} Wh`
     },
@@ -51,7 +63,7 @@ export function SimulationSummary({ result }: SimulationSummaryProps) {
           Recommandation automatique
         </h3>
         <p className="mt-2 text-sm text-brand-700">
-          Ces valeurs proviennent maintenant directement de l API de calcul.
+          Les usages client sont renseignes en 230V, puis le systeme est dimensionne sur batterie et conversion onduleur.
         </p>
       </div>
 

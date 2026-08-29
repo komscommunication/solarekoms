@@ -5,17 +5,26 @@
   installationType: string
   roofType: string
   autonomyDays: number
+
   systemVoltage: number
+  outputVoltage: number
+  currency: string
 
   lightPoints: number
   wattsPerLightPoint: number
+
   socketPoints: number
   socketCircuitType: string
   averageSocketWatts: number
 
+  specializedSocketPoints: number
+  specializedSocketWatts: number
+
   dedicatedLoadLabel?: string
   dedicatedLoadWatts?: number
   dedicatedLoadHours?: number
+
+  otherSpecificLoads?: string
 
   dailyConsumptionWh: number
   dailyConsumptionKwh: number

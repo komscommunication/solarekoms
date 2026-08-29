@@ -9,15 +9,17 @@ export class SimulationService {
   async calculate(input: CreateSimulationDto) {
     const lightingWh = input.lightPoints * input.wattsPerLightPoint * 5;
     const socketWh = input.socketPoints * input.averageSocketWatts * 4;
+    const specializedSocketWh = input.specializedSocketPoints * input.specializedSocketWatts * 4;
     const dedicatedWh =
       (input.dedicatedLoadWatts ?? 0) * (input.dedicatedLoadHours ?? 0);
 
-    const dailyConsumptionWh = lightingWh + socketWh + dedicatedWh;
+    const dailyConsumptionWh = lightingWh + socketWh + specializedSocketWh + dedicatedWh;
     const dailyConsumptionKwh = dailyConsumptionWh / 1000;
 
     const peakPowerW =
       input.lightPoints * input.wattsPerLightPoint +
       input.socketPoints * input.averageSocketWatts +
+      input.specializedSocketPoints * input.specializedSocketWatts +
       (input.dedicatedLoadWatts ?? 0);
 
     const safetyFactor = 1.2;
@@ -39,7 +41,7 @@ export class SimulationService {
       input.socketCircuitType === "AC" ? "20A" : "16A";
     const acProtection = "Interrupteur differentiel 30mA type AC";
     const dcProtection = "Disjoncteur DC + parafoudre DC";
-    const inverterProtection = "Disjoncteur AC dedie onduleur";
+    const inverterProtection = `Onduleur ${input.outputVoltage}V avec disjoncteur AC dedie`;
 
     return this.prisma.simulation.create({
       data: {
@@ -49,16 +51,24 @@ export class SimulationService {
         roofType: input.roofType,
         autonomyDays: input.autonomyDays,
         systemVoltage: input.systemVoltage,
+        outputVoltage: input.outputVoltage,
+        currency: input.currency,
 
         lightPoints: input.lightPoints,
         wattsPerLightPoint: input.wattsPerLightPoint,
+
         socketPoints: input.socketPoints,
         socketCircuitType: input.socketCircuitType,
         averageSocketWatts: input.averageSocketWatts,
 
+        specializedSocketPoints: input.specializedSocketPoints,
+        specializedSocketWatts: input.specializedSocketWatts,
+
         dedicatedLoadLabel: input.dedicatedLoadLabel,
         dedicatedLoadWatts: input.dedicatedLoadWatts,
         dedicatedLoadHours: input.dedicatedLoadHours,
+
+        otherSpecificLoads: input.otherSpecificLoads,
 
         dailyConsumptionWh,
         dailyConsumptionKwh,

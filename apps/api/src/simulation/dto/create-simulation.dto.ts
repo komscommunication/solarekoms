@@ -20,6 +20,12 @@ export class CreateSimulationDto {
   @IsIn([12, 24, 48])
   systemVoltage: number;
 
+  @IsIn([230])
+  outputVoltage: number;
+
+  @IsIn(["EUR", "USD"])
+  currency: string;
+
   @IsInt()
   @Min(0)
   lightPoints: number;
@@ -39,6 +45,14 @@ export class CreateSimulationDto {
   @Min(0)
   averageSocketWatts: number;
 
+  @IsInt()
+  @Min(0)
+  specializedSocketPoints: number;
+
+  @IsNumber()
+  @Min(0)
+  specializedSocketWatts: number;
+
   @IsOptional()
   @IsString()
   dedicatedLoadLabel?: string;
@@ -52,4 +66,8 @@ export class CreateSimulationDto {
   @IsNumber()
   @Min(0)
   dedicatedLoadHours?: number;
+
+  @IsOptional()
+  @IsString()
+  otherSpecificLoads?: string;
 }

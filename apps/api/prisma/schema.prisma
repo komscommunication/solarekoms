@@ -15,16 +15,24 @@ model Simulation {
   roofType                String
   autonomyDays            Int
   systemVoltage           Int
+  outputVoltage           Int
+  currency                String
 
   lightPoints             Int
   wattsPerLightPoint      Float
+
   socketPoints            Int
   socketCircuitType       String
   averageSocketWatts      Float
 
+  specializedSocketPoints Int
+  specializedSocketWatts  Float
+
   dedicatedLoadLabel      String?
   dedicatedLoadWatts      Float?
   dedicatedLoadHours      Float?
+
+  otherSpecificLoads      String?
 
   dailyConsumptionWh      Float
   dailyConsumptionKwh     Float
