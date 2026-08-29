@@ -1,7 +1,14 @@
 ﻿import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { calculateSimulation } from "../../lib/api";
 import type { SimulationResult } from "../../types/simulation";
+
+type SpecificLoadForm = {
+  label: string
+  watts: number
+  hoursPerDay: number
+  quantity: number
+}
 
 type FormValues = {
   projectName: string
@@ -24,9 +31,7 @@ type FormValues = {
   specializedSocketPoints: number
   specializedSocketWatts: number
 
-  dedicatedLoadLabel: string
-  dedicatedLoadWatts: number
-  dedicatedLoadHours: number
+  dedicatedLoads: SpecificLoadForm[]
 
   otherSpecificLoads: string
 }
@@ -39,7 +44,7 @@ export function ApplianceForm({ onResult }: ApplianceFormProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
-  const { register, handleSubmit } = useForm<FormValues>({
+  const { register, control, handleSubmit } = useForm<FormValues>({
     defaultValues: {
       projectName: "Maison principale",
       region: "France",
@@ -61,12 +66,28 @@ export function ApplianceForm({ onResult }: ApplianceFormProps) {
       specializedSocketPoints: 2,
       specializedSocketWatts: 2000,
 
-      dedicatedLoadLabel: "Refrigerateur",
-      dedicatedLoadWatts: 180,
-      dedicatedLoadHours: 10,
+      dedicatedLoads: [
+        {
+          label: "Refrigerateur",
+          watts: 180,
+          hoursPerDay: 10,
+          quantity: 1
+        },
+        {
+          label: "Congelateur",
+          watts: 220,
+          hoursPerDay: 10,
+          quantity: 1
+        }
+      ],
 
       otherSpecificLoads: "Machine a laver, television, box internet"
     }
+  })
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "dedicatedLoads"
   })
 
   const onSubmit = async (values: FormValues) => {
@@ -272,36 +293,84 @@ export function ApplianceForm({ onResult }: ApplianceFormProps) {
 
       <hr className="border-slate-200" />
 
-      <div>
-        <label className="mb-1 block text-sm font-medium text-slate-700">
-          Element specifique principal
-        </label>
-        <input
-          {...register("dedicatedLoadLabel")}
-          className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-brand-500"
-        />
-      </div>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-slate-900">
+            Equipements specifiques
+          </h3>
+          <button
+            type="button"
+            onClick={() =>
+              append({
+                label: "",
+                watts: 0,
+                hoursPerDay: 0,
+                quantity: 1
+              })
+            }
+            className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
+          >
+            Ajouter un equipement
+          </button>
+        </div>
 
-      <div>
-        <label className="mb-1 block text-sm font-medium text-slate-700">
-          Puissance de cet element specifique en W
-        </label>
-        <input
-          type="number"
-          {...register("dedicatedLoadWatts", { valueAsNumber: true })}
-          className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-brand-500"
-        />
-      </div>
+        {fields.map((field, index) => (
+          <div
+            key={field.id}
+            className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-4"
+          >
+            <div>
+              <label className="mb-1 block text-sm font-medium text-slate-700">
+                Nom de l equipement
+              </label>
+              <input
+                {...register(`dedicatedLoads.${index}.label` as const)}
+                className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-brand-500"
+              />
+            </div>
 
-      <div>
-        <label className="mb-1 block text-sm font-medium text-slate-700">
-          Heures de fonctionnement de cet element specifique
-        </label>
-        <input
-          type="number"
-          {...register("dedicatedLoadHours", { valueAsNumber: true })}
-          className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-brand-500"
-        />
+            <div>
+              <label className="mb-1 block text-sm font-medium text-slate-700">
+                Puissance en W
+              </label>
+              <input
+                type="number"
+                {...register(`dedicatedLoads.${index}.watts` as const, { valueAsNumber: true })}
+                className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-brand-500"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1 block text-sm font-medium text-slate-700">
+                Heures par jour
+              </label>
+              <input
+                type="number"
+                {...register(`dedicatedLoads.${index}.hoursPerDay` as const, { valueAsNumber: true })}
+                className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-brand-500"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1 block text-sm font-medium text-slate-700">
+                Quantite
+              </label>
+              <input
+                type="number"
+                {...register(`dedicatedLoads.${index}.quantity` as const, { valueAsNumber: true })}
+                className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-brand-500"
+              />
+            </div>
+
+            <button
+              type="button"
+              onClick={() => remove(index)}
+              className="rounded-xl border border-red-300 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-50"
+            >
+              Supprimer
+            </button>
+          </div>
+        ))}
       </div>
 
       <div>

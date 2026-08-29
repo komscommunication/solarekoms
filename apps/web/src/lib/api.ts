@@ -1,4 +1,11 @@
-﻿export type SimulationPayload = {
+﻿export type SpecificLoadPayload = {
+  label: string
+  watts: number
+  hoursPerDay: number
+  quantity: number
+}
+
+export type SimulationPayload = {
   projectName: string
   region: string
   installationType: string
@@ -19,9 +26,7 @@
   specializedSocketPoints: number
   specializedSocketWatts: number
 
-  dedicatedLoadLabel?: string
-  dedicatedLoadWatts?: number
-  dedicatedLoadHours?: number
+  dedicatedLoads: SpecificLoadPayload[]
 
   otherSpecificLoads?: string
 }

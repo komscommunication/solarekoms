@@ -81,6 +81,30 @@ export function SimulationSummary({ result }: SimulationSummaryProps) {
 
       <div className="rounded-2xl border border-slate-200 bg-white p-5">
         <h3 className="text-lg font-semibold text-slate-900">
+          Equipements specifiques retenus
+        </h3>
+
+        <div className="mt-4 space-y-3 text-sm text-slate-700">
+          {result.dedicatedLoads?.length ? (
+            result.dedicatedLoads.map((load, index) => (
+              <div
+                key={load.label + index}
+                className="rounded-xl border border-slate-200 px-4 py-3"
+              >
+                <div>Nom : {load.label}</div>
+                <div>Puissance : {load.watts} W</div>
+                <div>Heures par jour : {load.hoursPerDay}</div>
+                <div>Quantite : {load.quantity}</div>
+              </div>
+            ))
+          ) : (
+            <div>Aucun equipement specifique renseigne.</div>
+          )}
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-slate-200 bg-white p-5">
+        <h3 className="text-lg font-semibold text-slate-900">
           Protections recommandees
         </h3>
         <div className="mt-4 space-y-3 text-sm text-slate-700">

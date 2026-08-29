@@ -1,4 +1,5 @@
 ﻿import { Injectable } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateSimulationDto } from "./dto/create-simulation.dto";
 
@@ -10,17 +11,23 @@ export class SimulationService {
     const lightingWh = input.lightPoints * input.wattsPerLightPoint * 5;
     const socketWh = input.socketPoints * input.averageSocketWatts * 4;
     const specializedSocketWh = input.specializedSocketPoints * input.specializedSocketWatts * 4;
-    const dedicatedWh =
-      (input.dedicatedLoadWatts ?? 0) * (input.dedicatedLoadHours ?? 0);
 
-    const dailyConsumptionWh = lightingWh + socketWh + specializedSocketWh + dedicatedWh;
+    const dedicatedLoadsWh = input.dedicatedLoads.reduce((total, load) => {
+      return total + (load.watts * load.hoursPerDay * load.quantity);
+    }, 0);
+
+    const dedicatedLoadsPeak = input.dedicatedLoads.reduce((total, load) => {
+      return total + (load.watts * load.quantity);
+    }, 0);
+
+    const dailyConsumptionWh = lightingWh + socketWh + specializedSocketWh + dedicatedLoadsWh;
     const dailyConsumptionKwh = dailyConsumptionWh / 1000;
 
     const peakPowerW =
       input.lightPoints * input.wattsPerLightPoint +
       input.socketPoints * input.averageSocketWatts +
       input.specializedSocketPoints * input.specializedSocketWatts +
-      (input.dedicatedLoadWatts ?? 0);
+      dedicatedLoadsPeak;
 
     const safetyFactor = 1.2;
     const adjustedWh = dailyConsumptionWh * safetyFactor;
@@ -64,10 +71,7 @@ export class SimulationService {
         specializedSocketPoints: input.specializedSocketPoints,
         specializedSocketWatts: input.specializedSocketWatts,
 
-        dedicatedLoadLabel: input.dedicatedLoadLabel,
-        dedicatedLoadWatts: input.dedicatedLoadWatts,
-        dedicatedLoadHours: input.dedicatedLoadHours,
-
+        dedicatedLoads: input.dedicatedLoads as unknown as Prisma.InputJsonValue,
         otherSpecificLoads: input.otherSpecificLoads,
 
         dailyConsumptionWh,

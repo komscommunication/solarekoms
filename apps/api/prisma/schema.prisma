@@ -28,10 +28,7 @@ model Simulation {
   specializedSocketPoints Int
   specializedSocketWatts  Float
 
-  dedicatedLoadLabel      String?
-  dedicatedLoadWatts      Float?
-  dedicatedLoadHours      Float?
-
+  dedicatedLoads          Json?
   otherSpecificLoads      String?
 
   dailyConsumptionWh      Float

@@ -1,4 +1,22 @@
-﻿import { IsIn, IsInt, IsNumber, IsOptional, IsString, Min } from "class-validator";
+﻿import { IsArray, IsIn, IsInt, IsNumber, IsOptional, IsString, Min, ValidateNested } from "class-validator";
+import { Type } from "class-transformer";
+
+class DedicatedLoadDto {
+  @IsString()
+  label: string;
+
+  @IsNumber()
+  @Min(0)
+  watts: number;
+
+  @IsNumber()
+  @Min(0)
+  hoursPerDay: number;
+
+  @IsInt()
+  @Min(1)
+  quantity: number;
+}
 
 export class CreateSimulationDto {
   @IsString()
@@ -53,19 +71,10 @@ export class CreateSimulationDto {
   @Min(0)
   specializedSocketWatts: number;
 
-  @IsOptional()
-  @IsString()
-  dedicatedLoadLabel?: string;
-
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  dedicatedLoadWatts?: number;
-
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  dedicatedLoadHours?: number;
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => DedicatedLoadDto)
+  dedicatedLoads: DedicatedLoadDto[];
 
   @IsOptional()
   @IsString()
