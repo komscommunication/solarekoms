@@ -6,11 +6,16 @@ import type { SimulationResult } from "../types/simulation";
 export function SimulatorPage() {
   const [result, setResult] = useState<SimulationResult | null>(null)
 
+  const handleResult = (nextResult: SimulationResult) => {
+    setResult(nextResult)
+    localStorage.setItem("latestSimulation", JSON.stringify(nextResult))
+  }
+
   return (
     <section className="grid gap-8 lg:grid-cols-2">
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <h1 className="mb-4 text-2xl font-bold">Simulateur energetique</h1>
-        <ApplianceForm onResult={setResult} />
+        <ApplianceForm onResult={handleResult} />
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">

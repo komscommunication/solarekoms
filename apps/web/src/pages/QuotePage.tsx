@@ -1,10 +1,33 @@
-﻿import { mockQuoteItems, mockQuoteSummary } from "../data/mockQuote";
+﻿import { useMemo } from "react";
+import { buildQuote } from "../lib/quote";
+import type { SimulationResult } from "../types/simulation";
 
 function formatPrice(value: number, currency: string) {
-  return `${value.toLocaleString("fr-FR")} ${currency}`;
+  return `${value.toLocaleString("fr-FR")} ${currency}`
 }
 
 export function QuotePage() {
+  const simulation = useMemo(() => {
+    const raw = localStorage.getItem("latestSimulation")
+    if (!raw) return null
+    return JSON.parse(raw) as SimulationResult
+  }, [])
+
+  if (!simulation) {
+    return (
+      <section className="space-y-4">
+        <h1 className="text-3xl font-bold text-slate-900">
+          Devis recommande
+        </h1>
+        <p className="text-slate-600">
+          Aucun calcul recent n est disponible. Lance d abord une simulation.
+        </p>
+      </section>
+    )
+  }
+
+  const quote = buildQuote(simulation)
+
   return (
     <section className="space-y-8">
       <div className="space-y-3">
@@ -12,34 +35,29 @@ export function QuotePage() {
           Devis recommande
         </h1>
         <p className="max-w-3xl text-slate-600">
-          Ce devis d'exemple regroupe les principaux materiels recommandes pour une installation solaire autonome correspondant au besoin estime.
+          Ce devis est genere a partir de la derniere simulation effectuee.
         </p>
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="grid grid-cols-5 gap-4 border-b border-slate-200 bg-slate-50 px-6 py-4 text-sm font-semibold text-slate-700">
-          <div className="col-span-2">Produit</div>
-          <div>Categorie</div>
+        <div className="grid grid-cols-4 gap-4 border-b border-slate-200 bg-slate-50 px-6 py-4 text-sm font-semibold text-slate-700">
+          <div>Materiel</div>
           <div>Quantite</div>
+          <div>Prix unitaire</div>
           <div>Total</div>
         </div>
 
         <div className="divide-y divide-slate-200">
-          {mockQuoteItems.map((item) => (
+          {quote.items.map((item) => (
             <div
-              key={item.id}
-              className="grid grid-cols-5 gap-4 px-6 py-4 text-sm text-slate-700"
+              key={item.label}
+              className="grid grid-cols-4 gap-4 px-6 py-4 text-sm text-slate-700"
             >
-              <div className="col-span-2">
-                <p className="font-medium text-slate-900">{item.name}</p>
-                <p className="text-slate-500">
-                  Prix unitaire : {formatPrice(item.unitPrice, mockQuoteSummary.currency)}
-                </p>
-              </div>
-              <div>{item.category}</div>
+              <div className="font-medium text-slate-900">{item.label}</div>
               <div>{item.quantity}</div>
+              <div>{formatPrice(item.unitPrice, quote.currency)}</div>
               <div className="font-semibold text-slate-900">
-                {formatPrice(item.total, mockQuoteSummary.currency)}
+                {formatPrice(item.total, quote.currency)}
               </div>
             </div>
           ))}
@@ -49,14 +67,16 @@ export function QuotePage() {
       <div className="grid gap-6 lg:grid-cols-[1.4fr_0.8fr]">
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <h2 className="text-xl font-semibold text-slate-900">
-            Hypotheses du devis
+            Donnees techniques
           </h2>
-          <ul className="mt-4 space-y-2 text-sm text-slate-600">
-            <li>- Le dimensionnement est base sur une autonomie theorique de 2 jours.</li>
-            <li>- Les prix sont des exemples et devront etre relies plus tard a un vrai catalogue produit.</li>
-            <li>- Les couts d'installation et de transport sont affiches a titre indicatif.</li>
-            <li>- Cette page servira ensuite de base au devis dynamique connecte a l'API.</li>
-          </ul>
+          <div className="mt-4 space-y-2 text-sm text-slate-700">
+            <div>Tension batterie : {simulation.systemVoltage} V</div>
+            <div>Tension utilisateur : {simulation.outputVoltage} V</div>
+            <div>Puissance onduleur : {simulation.inverterWatts} W</div>
+            <div>Protection AC : {simulation.acProtection}</div>
+            <div>Protection DC : {simulation.dcProtection}</div>
+            <div>Protection onduleur : {simulation.inverterProtection}</div>
+          </div>
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -66,33 +86,29 @@ export function QuotePage() {
 
           <div className="mt-4 space-y-3 text-sm text-slate-700">
             <div className="flex items-center justify-between">
-              <span>Sous-total materiel</span>
-              <span>{formatPrice(mockQuoteSummary.subtotal, mockQuoteSummary.currency)}</span>
+              <span>Sous total materiel</span>
+              <span>{formatPrice(quote.subtotal, quote.currency)}</span>
             </div>
 
             <div className="flex items-center justify-between">
               <span>Installation</span>
-              <span>{formatPrice(mockQuoteSummary.installation, mockQuoteSummary.currency)}</span>
+              <span>{formatPrice(quote.installation, quote.currency)}</span>
             </div>
 
             <div className="flex items-center justify-between">
               <span>Transport</span>
-              <span>{formatPrice(mockQuoteSummary.transport, mockQuoteSummary.currency)}</span>
+              <span>{formatPrice(quote.transport, quote.currency)}</span>
             </div>
 
             <div className="border-t border-slate-200 pt-3">
               <div className="flex items-center justify-between text-base font-bold text-slate-900">
                 <span>Total estime</span>
-                <span>{formatPrice(mockQuoteSummary.total, mockQuoteSummary.currency)}</span>
+                <span>{formatPrice(quote.total, quote.currency)}</span>
               </div>
             </div>
           </div>
-
-          <button className="mt-6 w-full rounded-xl bg-brand-600 px-5 py-3 font-medium text-white hover:bg-brand-700">
-            Demander ce devis
-          </button>
         </div>
       </div>
     </section>
-  );
+  )
 }
