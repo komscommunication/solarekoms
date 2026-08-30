@@ -1,4 +1,5 @@
-﻿import type { SimulationResult } from "../types/simulation";
+﻿import { catalogProducts } from "../data/catalog";
+import type { SimulationResult } from "../types/simulation";
 
 export type QuoteItem = {
   label: string
@@ -24,69 +25,68 @@ function roundUpBatteries(ah: number) {
   return Math.ceil(ah / 200)
 }
 
+function findProduct(id: string) {
+  const product = catalogProducts.find((item) => item.id === id)
+  if (!product) {
+    throw new Error(`Produit catalogue introuvable: ${id}`)
+  }
+  return product
+}
+
+function getPrice(productId: string, currency: string) {
+  const product = findProduct(productId)
+  return currency === "USD" ? product.priceUSD : product.priceEUR
+}
+
 export function buildQuote(simulation: SimulationResult): QuoteResult {
   const panelCount = roundUpPanels(simulation.recommendedSolarWatts)
   const batteryCount = roundUpBatteries(simulation.batteryCapacityAh)
   const inverterCount = 1
   const controllerCount = 1
 
-  const prices =
-    simulation.currency === "USD"
-      ? {
-          panel: 180,
-          battery: 900,
-          inverter: 700,
-          controller: 250,
-          protections: 300,
-          installation: 500,
-          transport: 250
-        }
-      : {
-          panel: 170,
-          battery: 850,
-          inverter: 650,
-          controller: 230,
-          protections: 280,
-          installation: 450,
-          transport: 200
-        }
+  const panelPrice = getPrice("panel-550w", simulation.currency)
+  const batteryPrice = getPrice("battery-200ah", simulation.currency)
+  const inverterPrice = getPrice("inverter-230v", simulation.currency)
+  const controllerPrice = getPrice("controller-mppt", simulation.currency)
+  const protectionsPrice = getPrice("protection-board", simulation.currency)
+
+  const installation = simulation.currency === "USD" ? 500 : 450
+  const transport = simulation.currency === "USD" ? 250 : 200
 
   const items: QuoteItem[] = [
     {
-      label: "Panneaux solaires 550W",
+      label: findProduct("panel-550w").name,
       quantity: panelCount,
-      unitPrice: prices.panel,
-      total: panelCount * prices.panel
+      unitPrice: panelPrice,
+      total: panelCount * panelPrice
     },
     {
-      label: "Batteries 200Ah",
+      label: findProduct("battery-200ah").name,
       quantity: batteryCount,
-      unitPrice: prices.battery,
-      total: batteryCount * prices.battery
+      unitPrice: batteryPrice,
+      total: batteryCount * batteryPrice
     },
     {
-      label: "Onduleur",
+      label: findProduct("inverter-230v").name,
       quantity: inverterCount,
-      unitPrice: prices.inverter,
-      total: inverterCount * prices.inverter
+      unitPrice: inverterPrice,
+      total: inverterCount * inverterPrice
     },
     {
-      label: "Regulateur",
+      label: findProduct("controller-mppt").name,
       quantity: controllerCount,
-      unitPrice: prices.controller,
-      total: controllerCount * prices.controller
+      unitPrice: controllerPrice,
+      total: controllerCount * controllerPrice
     },
     {
-      label: "Protections et tableau",
+      label: findProduct("protection-board").name,
       quantity: 1,
-      unitPrice: prices.protections,
-      total: prices.protections
+      unitPrice: protectionsPrice,
+      total: protectionsPrice
     }
   ]
 
   const subtotal = items.reduce((sum, item) => sum + item.total, 0)
-  const installation = prices.installation
-  const transport = prices.transport
   const total = subtotal + installation + transport
 
   return {

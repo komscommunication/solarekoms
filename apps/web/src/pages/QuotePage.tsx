@@ -1,9 +1,17 @@
 ﻿import { useMemo } from "react";
 import { buildQuote } from "../lib/quote";
+import { catalogProducts } from "../data/catalog";
 import type { SimulationResult } from "../types/simulation";
 
 function formatPrice(value: number, currency: string) {
   return `${value.toLocaleString("fr-FR")} ${currency}`
+}
+
+function getSupplierInfo(label: string) {
+  const product = catalogProducts.find((item) => item.name === label)
+  return product
+    ? { supplier: product.supplier, supplierUrl: product.supplierUrl }
+    : null
 }
 
 export function QuotePage() {
@@ -40,27 +48,46 @@ export function QuotePage() {
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="grid grid-cols-4 gap-4 border-b border-slate-200 bg-slate-50 px-6 py-4 text-sm font-semibold text-slate-700">
+        <div className="grid grid-cols-5 gap-4 border-b border-slate-200 bg-slate-50 px-6 py-4 text-sm font-semibold text-slate-700">
           <div>Materiel</div>
           <div>Quantite</div>
           <div>Prix unitaire</div>
           <div>Total</div>
+          <div>Source</div>
         </div>
 
         <div className="divide-y divide-slate-200">
-          {quote.items.map((item) => (
-            <div
-              key={item.label}
-              className="grid grid-cols-4 gap-4 px-6 py-4 text-sm text-slate-700"
-            >
-              <div className="font-medium text-slate-900">{item.label}</div>
-              <div>{item.quantity}</div>
-              <div>{formatPrice(item.unitPrice, quote.currency)}</div>
-              <div className="font-semibold text-slate-900">
-                {formatPrice(item.total, quote.currency)}
+          {quote.items.map((item) => {
+            const supplierInfo = getSupplierInfo(item.label)
+
+            return (
+              <div
+                key={item.label}
+                className="grid grid-cols-5 gap-4 px-6 py-4 text-sm text-slate-700"
+              >
+                <div className="font-medium text-slate-900">{item.label}</div>
+                <div>{item.quantity}</div>
+                <div>{formatPrice(item.unitPrice, quote.currency)}</div>
+                <div className="font-semibold text-slate-900">
+                  {formatPrice(item.total, quote.currency)}
+                </div>
+                <div>
+                  {supplierInfo ? (
+                    <a
+                      href={supplierInfo.supplierUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-brand-700 underline"
+                    >
+                      {supplierInfo.supplier}
+                    </a>
+                  ) : (
+                    "N/A"
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
 
