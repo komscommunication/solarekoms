@@ -1,6 +1,7 @@
 ﻿import { useState } from "react";
 import { ApplianceForm } from "../components/simulation/ApplianceForm";
 import { SimulationSummary } from "../components/simulation/SimulationSummary";
+import { saveLatestSimulation } from "../lib/simulationStorage";
 import type { SimulationResult } from "../types/simulation";
 
 export function SimulatorPage() {
@@ -8,7 +9,7 @@ export function SimulatorPage() {
 
   const handleResult = (nextResult: SimulationResult) => {
     setResult(nextResult)
-    localStorage.setItem("latestSimulation", JSON.stringify(nextResult))
+    saveLatestSimulation(nextResult)
   }
 
   return (

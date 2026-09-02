@@ -1,7 +1,7 @@
 ﻿import { useMemo } from "react";
 import { buildQuote } from "../lib/quote";
 import { catalogProducts } from "../data/catalog";
-import type { SimulationResult } from "../types/simulation";
+import { loadLatestSimulation } from "../lib/simulationStorage";
 
 function formatPrice(value: number, currency: string) {
   return `${value.toLocaleString("fr-FR")} ${currency}`
@@ -14,12 +14,10 @@ function getSupplierInfo(label: string) {
     : null
 }
 
+const PDF_URL = "https://files.use.ai/files/chat%2Ffiles%2F679f3840070d47015fbe93145aa280a486748f94fe26f0b82ab54562496f2458%2Fdevis-solarcops.pdf?v=1788352140426";
+
 export function QuotePage() {
-  const simulation = useMemo(() => {
-    const raw = localStorage.getItem("latestSimulation")
-    if (!raw) return null
-    return JSON.parse(raw) as SimulationResult
-  }, [])
+  const simulation = useMemo(() => loadLatestSimulation(), [])
 
   if (!simulation) {
     return (
@@ -45,6 +43,14 @@ export function QuotePage() {
         <p className="max-w-3xl text-slate-600">
           Ce devis est genere a partir de la derniere simulation effectuee.
         </p>
+        <a
+          href={PDF_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-block rounded-xl bg-brand-600 px-5 py-3 font-medium text-white hover:bg-brand-700"
+        >
+          Telecharger le devis PDF
+        </a>
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
